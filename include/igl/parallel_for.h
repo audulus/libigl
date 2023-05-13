@@ -85,6 +85,21 @@ namespace igl
     const FunctionType & func,
     const AccumFunctionType & accum_func,
     const size_t min_parallel=0);
+
+  template<
+    typename Index,
+    typename PrepFunctionType,
+    typename FunctionType,
+    typename AccumFunctionType,
+    typename ProgressFunctionType
+    >
+  inline bool parallel_for(
+    const Index loop_size,
+    const PrepFunctionType & prep_func,
+    const FunctionType & func,
+    const AccumFunctionType & accum_func,
+    const size_t min_parallel,
+    const ProgressFunctionType & progress);
 }
 
 // Implementation
@@ -122,6 +137,23 @@ inline bool igl::parallel_for(
   const FunctionType & func,
   const AccumFunctionType & accum_func,
   const size_t min_parallel)
+{
+  return parallel_for(loop_size,prep_func,func,accum_func,min_parallel,[](double){return true;});
+}
+
+template<
+  typename Index,
+  typename PreFunctionType,
+  typename FunctionType,
+  typename AccumFunctionType,
+  typename ProgressFunctionType>
+inline bool igl::parallel_for(
+  const Index loop_size,
+  const PreFunctionType & prep_func,
+  const FunctionType & func,
+  const AccumFunctionType & accum_func,
+  const size_t min_parallel,
+  const ProgressFunctionType & progress)
 {
   assert(loop_size>=0);
   if(loop_size==0) return false;
