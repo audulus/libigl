@@ -111,6 +111,7 @@ namespace igl
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <atomic>
 
 template<typename Index, typename FunctionType >
 inline bool igl::parallel_for(
@@ -178,10 +179,20 @@ inline bool igl::parallel_for(
       std::max(
         (Index)std::round((loop_size+1)/static_cast<double>(nthreads)),(Index)1);
 
+    std::atomic<size_t> completed{0};
+    std::atomic<bool> cancel{false};
+
     // [Helper] Inner loop
-    const auto & range = [&func](const Index k1, const Index k2, const size_t t)
+    const auto & range = [&func, &completed, &progress, loop_size, &cancel](const Index k1, const Index k2, const size_t t)
     {
-      for(Index k = k1; k < k2; k++) func(k,t);
+      for(Index k = k1; k < k2; k++) {
+        if(cancel.load()) return;
+        func(k,t);
+        size_t c = ++completed;
+        if(!progress(double(c)/double(loop_size))) {
+          cancel.store(true);
+        }
+      }
     };
     prep_func(nthreads);
     // Create pool and launch jobs
