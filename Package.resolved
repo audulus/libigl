@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "eigen",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Audulus/eigen",
+      "state" : {
+        "branch" : "spm",
+        "revision" : "370c068bb766ae619c7344da787817f8abfc123e"
+      }
+    }
+  ],
+  "version" : 2
+}
