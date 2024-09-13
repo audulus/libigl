@@ -145,6 +145,7 @@ inline bool igl::parallel_for(
   const AccumFunctionType & accum_func,
   const size_t min_parallel)
 {
+  thread_local bool inside_parallel_for = false;
   assert(loop_size>=0);
   if(loop_size==0) return false;
   // Estimate number of threads in the pool
@@ -152,7 +153,8 @@ inline bool igl::parallel_for(
 #ifdef IGL_PARALLEL_FOR_FORCE_SERIAL
   const size_t nthreads = 1;
 #else
-  const size_t nthreads = igl::default_num_threads();
+  // Should there be a warning about already being inside a parallel_for?
+  const size_t nthreads = inside_parallel_for ? 1 : igl::default_num_threads();
 #endif
   if(loop_size<min_parallel || nthreads<=1)
   {
@@ -171,6 +173,7 @@ inline bool igl::parallel_for(
     // [Helper] Inner loop
     const auto & range = [&func](const Index k1, const Index k2, const size_t t)
     {
+      inside_parallel_for = true;
       for(Index k = k1; k < k2; k++) func(k,t);
     };
     prep_func(nthreads);
