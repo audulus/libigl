@@ -145,7 +145,7 @@ inline bool igl::parallel_for(
   const AccumFunctionType & accum_func,
   const size_t min_parallel)
 {
-  thread_local bool inside_parallel_for = false;
+  static thread_local bool inside_parallel_for = false;
   assert(loop_size>=0);
   if(loop_size==0) return false;
   // Estimate number of threads in the pool
